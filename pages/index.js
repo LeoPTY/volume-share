@@ -10,7 +10,7 @@ import { Charts as ChartJS } from 'chart.js/auto'
 import { Chart }            from 'react-chartjs-2'
 import {useState , useEffect} from "react"
 import axios from 'axios'
-import useSWR from 'swr';
+import useSWR, {mutate} from 'swr';
 import Header from '../components/header'
 import SelectButton from '../components/SelectButton'
 
@@ -18,6 +18,27 @@ const fetcher = async url => {
   let res = await axios.get(url)
   return res.data
 }
+/*
+const cacheTime = 10000;
+const cache = {} 
+let cacheTimer =0;
+
+const getCacheTImer = time =>{
+  const now = new Date().getTime()
+  if(cacheTimer<now+time){
+    cacheTimer = now+time
+    
+  }
+  return cacheTimer
+}
+
+
+const fetchWithCatch = async (`/api/volume?days=${days}&count=${count}`) => {
+  const now = new Date().getTime()
+  if(!cache)
+
+}
+*/
 
 const App = () => {
 
@@ -53,9 +74,15 @@ const Charts = ({ days, count }) => {
           revalidateOnFocus: false,
           revalidateOnReconnect: false
       }
+
+      
   )
 
-  
+
+  if (typeof window !== 'undefined') {
+    // Perform localStorage action
+    localStorage.setItem('data',JSON.stringify(data))
+  }
 
 
   var test = [];
@@ -82,9 +109,7 @@ const Charts = ({ days, count }) => {
       price_btc[d.volume_date] = d
       }
    
-      x=parseFloat(price_btc?.[time]?.options_daily) + 
-      parseFloat(price_btc?.[time]?.futures) + 
-      parseFloat(price_btc?.[time]?.perpetual)
+      x=parseFloat(price_btc?.[time]?.total_volume);
       //console.log(xo)
 
       var pricediff=[];
@@ -99,9 +124,7 @@ const Charts = ({ days, count }) => {
         e=data.deribit_volumes?.eth.data?.[o];
         price_eth[e.volume_date] = e
         }
-        m=((parseFloat(price_eth?.[time]?.options_daily) + 
-        parseFloat(price_eth?.[time]?.futures) + 
-        parseFloat(price_eth?.[time]?.perpetual))/pricediff[i])
+        m=((parseFloat(price_eth?.[time]?.total_volume))/pricediff[i])
         m = m?m:0;
         //console.log(m)
       
