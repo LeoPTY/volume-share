@@ -1,11 +1,9 @@
 
 import { Line } from "react-chartjs-2";
-import {
-  CircularProgress,
-  createTheme,
-  makeStyles,
-  ThemeProvider,
-}from "@material-ui/core";
+
+//import { makeStyles } from "@material-ui/styles";
+//import { ThemeProvider, createTheme,CircularProgress } from "@mui/material/styles";
+//import { makeStyles } from "@mui/styles";
 import { Charts as ChartJS } from 'chart.js/auto'
 import { Chart }            from 'react-chartjs-2'
 import {useState , useEffect} from "react"
@@ -13,36 +11,38 @@ import axios from 'axios'
 import useSWR, {mutate} from 'swr';
 import Header from '../components/header'
 import SelectButton from '../components/SelectButton'
+import {
+  CircularProgress,
+  createTheme,
+  makeStyles,
+  ThemeProvider,
+}from "@material-ui/core";
 
 const fetcher = async url => {
   let res = await axios.get(url)
   return res.data
 }
-/*
-const cacheTime = 10000;
-const cache = {} 
-let cacheTimer =0;
-
-const getCacheTImer = time =>{
-  const now = new Date().getTime()
-  if(cacheTimer<now+time){
-    cacheTimer = now+time
-    
-  }
-  return cacheTimer
-}
-
-
-const fetchWithCatch = async (`/api/volume?days=${days}&count=${count}`) => {
-  const now = new Date().getTime()
-  if(!cache)
-
-}
-*/
 
 const App = () => {
-
-
+  const useStyles = makeStyles((theme) => ({
+    container: {
+      width: "80%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 25,
+      padding: 40,
+      [theme.breakpoints.down("md")]: {
+        width: "100%",
+        marginTop: 0,
+        padding: 30,
+        paddingTop: 0,
+      },
+    },
+  }));
+  
+  //const classes = useStyles();
 
   const [days, setDays] = useState(30)
   const [count, setCount] = useState(30)
@@ -66,6 +66,7 @@ const App = () => {
 }
 
 const Charts = ({ days, count }) => {
+ // const classes = useStyles();
   const { data, error } = useSWR(
       `/api/volume?days=${days}&count=${count}`,
       fetcher,
@@ -79,18 +80,10 @@ const Charts = ({ days, count }) => {
   )
 
 
-  if (typeof window !== 'undefined') {
-    // Perform localStorage action
-    localStorage.setItem('data',JSON.stringify(data))
-  }
-
-
   var test = [];
   var trying = [];
   var r = []; //result
   var i, l = data?.exchange_volumes?.binance?.length;
-  //r.length = l;
-  //test.length =l;
 
 
   for(i = 0; i < data?.exchange_volumes?.binance?.length; i = i +1) {
@@ -100,8 +93,7 @@ const Charts = ({ days, count }) => {
     var month = ('0' + (a.getMonth()+1)).slice(-2);
     var dias = ('0' + a.getDate()).slice(-2);
     var time = year + '-' + month + '-' + dias;
-    //console.log(time)
-      
+
     var d,e,price_eth=[], price_btc=[], x, m;
 
     for(var y = 0; y < data.deribit_volumes?.btc.data?.length; y = y +1){
@@ -110,7 +102,6 @@ const Charts = ({ days, count }) => {
       }
    
       x=parseFloat(price_btc?.[time]?.total_volume);
-      //console.log(xo)
 
       var pricediff=[];
       for(var z = 0; z < data.deribit_volumes?.eth.data?.length; z = z +1){
@@ -119,18 +110,12 @@ const Charts = ({ days, count }) => {
         }
       }
 
-      //console.log(pricediff)
       for(var o = 0; o < data.deribit_volumes?.eth.data?.length; o = o +1){
         e=data.deribit_volumes?.eth.data?.[o];
         price_eth[e.volume_date] = e
         }
         m=((parseFloat(price_eth?.[time]?.total_volume))/pricediff[i])
         m = m?m:0;
-        //console.log(m)
-      
-     // m =Array.from(a, item => item || 0);
-      
-
   
   r[i] = [data.exchange_volumes?.deribit?.[i][0], parseFloat(data.exchange_volumes?.ftx?.[i]?.[1])
     +parseFloat(data.exchange_volumes?.deribit?.[i]?.[1]) 
@@ -158,6 +143,7 @@ const Charts = ({ days, count }) => {
   if (error) {
       return (<>Error fetching data</>)
   }
+
   const darkTheme = createTheme({
     palette: {
       primary: {
@@ -170,11 +156,18 @@ const Charts = ({ days, count }) => {
   return (
     
     <ThemeProvider theme={darkTheme}>
-      <div>
+      <div style={{
+                display: "flex",
+                marginTop: 20,
+                marginRight: 0,
+                marginLeft:150,
+                justifyContent: "center",
+                width: "80%",
+              }}>
           <>
             <Line
               data={{
-                labels: data.exchange_volumes.deribit.map((exchange) => {
+                labels: data.exchange_volumes?.deribit?.map((exchange) => {
                   let date = new Date(exchange[0]);
                   let time =
                     date.getHours() > 12
@@ -200,20 +193,19 @@ const Charts = ({ days, count }) => {
                 },
               }}
             />
-            <div
-              style={{
+
+          </>
+        
+      </div>
+      <div style={{
                 display: "flex",
                 marginTop: 20,
-                marginRight:0,
-                justifyContent: "space-around",
-                width: "100%",
-              }}
-            >
-
-              
-            </div>
-          </>
-        <div>
+                marginRight: 0,
+                marginLeft:150,
+                justifyContent: "center",
+                width: "80%",
+                textJustify:"inter-word"
+              }}>
         <h3>
           We query the data from multiple exchanges via coingecko API, exchanges currently used: FTX, Binance, Bitmex, OKEX, Bybit, Huobi.
         </h3>
@@ -224,7 +216,6 @@ const Charts = ({ days, count }) => {
           Where DeribitVolume is the volume of the day in Deribit and TotalVolume is the total volume of the day in all exchanges.
         </h3>
         
-      </div>
       </div>
       
     </ThemeProvider>

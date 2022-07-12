@@ -18,3 +18,16 @@ code {
 h3{
   color:aliceblue;
 }
+
+.container{
+  width: "80%";
+  display: "flex";
+  margin: 25;
+  padding: 40;
+}
+
+.center {
+  
+  text-align: center;
+  }
+
